@@ -3,13 +3,34 @@ import { Image, View, Text, ScrollView, Button } from "react-native";
 import { StyleSheet } from "react-native";
 import { Left, Right, Container, H1 } from "native-base";
 import Toast from "react-native-toast-message";
+import EasyButton from "../../Shared/StyledComponents/EasyButton";
+import TrafficLight from "../../Shared/StyledComponents/TrafficLight";
 
 import { connect } from "react-redux";
 import * as actions from "../../Redux/Actions/cartActions";
 
 const SingleProduct = (props) => {
   const [item, setItem] = useState(props.route.params.item);
-  const [availability, setAvailability] = useState("");
+  const [availability, setAvailability] = useState(null);
+  const [avilabilityText , setAvailabilityText] = useState("")
+
+  useEffect(() => {
+    if (props.route.params.item.countInStock == 0) {
+      setAvailability(<TrafficLight unavailable></TrafficLight>)
+      setAvailabilityText("Unavailable")
+    }else if (props.route.params.item.countInStock <= 5) {
+      setAvailability(<TrafficLight limited></TrafficLight>)
+      setAvailabilityText("Limited Stock")
+    }else {
+      setAvailability(<TrafficLight available></TrafficLight>)
+      setAvailabilityText("Available")
+    }
+
+    return() => {
+      setAvailability(null)
+      setAvailabilityText("");
+    }
+  },[])
 
   return (
     <Container style={styles.container}>
@@ -29,6 +50,15 @@ const SingleProduct = (props) => {
           <H1 style={styles.contentHeader}>{item.name}</H1>
           <Text style={styles.contentText}>{item.brand}</Text>
         </View>
+        <View style={styles.availabilityContainer}>
+          <View style={styles.availability}>
+            <Text style={{marginRight:10}}>
+              Availability : {avilabilityText}
+            </Text>
+            {availability}
+          </View>
+          <Text>{item.description}</Text>
+        </View>
         {/* TODO Description , richdesicription and avalability*/}
       </ScrollView>
 
@@ -37,7 +67,9 @@ const SingleProduct = (props) => {
           <Text style={styles.price}>Rs.{item.price}</Text>
         </Left>
         <Right>
-          <Button
+          <EasyButton
+          primary
+          medium
             title="Add"
             onPress={() => {
               props.addItemToCart(item),
@@ -48,7 +80,9 @@ const SingleProduct = (props) => {
                   text2: "Go to your Booking to complete Booking",
                 });
             }}
-          />
+          >
+            <Text style={{color:"white",alignSelf:"center"}}>Add</Text>
+          </EasyButton>
         </Right>
       </View>
     </Container>
@@ -102,5 +136,13 @@ const styles = StyleSheet.create({
     margin: 20,
     color: "red",
   },
+  availabilityContainer:{
+    marginBottom:20,
+    alignItems:"center",
+  },
+  availability:{
+    flexDirection:"row",
+    marginBottom:10
+  }
 });
 export default connect(null, mapDispatchToProps)(SingleProduct);

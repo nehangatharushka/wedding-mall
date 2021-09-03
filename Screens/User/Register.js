@@ -6,6 +6,7 @@ import Error from '../../Shared/Error'
 import { KeyboardAwareScrollView } from '@codler/react-native-keyboard-aware-scroll-view'
 import Toast from 'react-native-toast-message'
 import axios from 'axios'
+import EasyButton from "../../Shared/StyledComponents/EasyButton";
 import baseURL from '../../assets/common/baseUrl'
 
 const Register = (props) => {
@@ -44,7 +45,7 @@ const Register = (props) => {
                     })
                     setTimeout(() => {
                         props.navigation.navigate("Login")
-                    },400)
+                    },500)
                 }
             })
             .catch((error) => {
@@ -95,11 +96,15 @@ const Register = (props) => {
                     {error ? <Error message={error} /> : null }
                 </View>
                 <View>
-                    <Button title={"Register"} onPress={() => register()} />
+                    <EasyButton large primary onPress={() => register()} >
+                        <Text style={{color:"white",alignSelf:"center"}}>Register</Text>
+                    </EasyButton>
                 </View>
                 <View style={{marginTop:10}}>
-                    <Button title={"Back to Login"} onPress={
-                        () => props.navigation.navigate("Login")} />
+                    <EasyButton large secondary onPress={
+                        () => props.navigation.navigate("Login")} >
+                        <Text style={{color:"white",alignSelf:"center"}}>Back to Login</Text>
+                        </EasyButton>
                 </View>
             </FormContainer>
 

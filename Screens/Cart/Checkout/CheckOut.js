@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { Text, View, Button ,ScrollView} from "react-native";
-import { Item, Picker} from "native-base";
+import React, { useEffect, useState, useContext } from "react";
+import { Text, View, Button, ScrollView } from "react-native";
+import { Item, Picker, Toast } from "native-base";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import AuthGlobal from "../../../Context/store/AuthGlobal";
 
 import FormContainer from "../../../Shared/Form/FormContainer";
 import Input from "../../../Shared/Form/Input";
@@ -12,6 +13,7 @@ import { connect } from "react-redux";
 const countries = require("../../../assets/data/countries.json");
 
 const Checkout = (props) => {
+  const context = useContext(AuthGlobal);
 
   const [orderItems, setOrderItems] = useState();
   const [address, setAddress] = useState();
@@ -20,9 +22,22 @@ const Checkout = (props) => {
   const [zip, setZip] = useState();
   const [country, setCountry] = useState();
   const [phone, setPhone] = useState();
+  const [user, setUser] = useState();
 
   useEffect(() => {
     setOrderItems(props.cartItems);
+
+    if (context.stateUser.isAuthenticated) {
+      setUser(context.stateUser.user.sub);
+    } else {
+      props.navigation.navigate("Cart");
+      Toast.show({
+        topOffset: 60,
+        type: "error",
+        text1: "Please Login to Checkout",
+        text: "",
+      });
+    }
 
     return () => {
       setOrderItems();
@@ -38,6 +53,8 @@ const Checkout = (props) => {
       phone,
       shippingAddress1: address,
       shippingAddress2: address2,
+      status: "3",
+      user,
       zip,
     };
     props.navigation.navigate("Payment", { order: order });
@@ -50,7 +67,6 @@ const Checkout = (props) => {
       enableOnAndroid={true}
     >
       <FormContainer title={"Booking Address"}>
-  
         <Input
           placeholder={"Phone"}
           name={"Phone"}
@@ -86,7 +102,7 @@ const Checkout = (props) => {
           keyboardType={"numeric"}
           onChangeText={(text) => setZip(text)}
         />
-        
+
         <Item picker>
           <Picker
             mode="dropdown"
@@ -99,16 +115,11 @@ const Checkout = (props) => {
             onValueChange={(e) => setCountry(e)}
           >
             {countries.map((c) => {
-              return <Picker.Item 
-                        key={c.code} 
-                        label={c.name}
-                        value={c.name}
-                        />
+              return <Picker.Item key={c.code} label={c.name} value={c.name} />;
             })}
           </Picker>
         </Item>
-        <View>
-        </View>
+        <View></View>
         <View style={{ width: "80%", alignItems: "center" }}>
           <Button title="Confirm" onPress={() => checkOut()} />
         </View>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import {
   View,
   Dimensions,
@@ -6,27 +6,22 @@ import {
   Button,
   TouchableOpacity,
 } from "react-native";
-import {
-  Container,
-  Text,
-  Left,
-  Right,
-  H1,
-  ListItem,
-  Thumbnail,
-  Body,
-} from "native-base";
+import { Container, Text, Left, Right, H1 } from "native-base";
 import { SwipeListView } from "react-native-swipe-list-view";
 import CartItem from "./CartItem";
 
-import { Icon } from "react-native-vector-icons/FontAwesome";
+import Icon from "react-native-vector-icons/FontAwesome";
+import EasyButton from "../../Shared/StyledComponents/EasyButton";
 
 import { connect } from "react-redux";
 import * as actions from "../../Redux/Actions/cartActions";
+import AuthGlobal from "../../Context/store/AuthGlobal";
 
 var { height, width } = Dimensions.get("window");
 
 const Cart = (props) => {
+  const context = useContext(AuthGlobal);
+
   var total = 0;
   props.cartItems.forEach((cart) => {
     return (total += cart.product.price);
@@ -38,10 +33,8 @@ const Cart = (props) => {
       {props.cartItems.length ? (
         <Container>
           <H1 style={{ alignSelf: "center" }}>Bookings</H1>
-          {props.cartItems.map((data) =>{
-            return (
-              <CartItem item={data} />
-            )
+          {props.cartItems.map((data) => {
+            return <CartItem item={data} />;
           })}
           {/* <SwipeListView
           data={props.cartItems}
@@ -71,13 +64,34 @@ const Cart = (props) => {
               <Text style={styles.price}>Rs.{total}</Text>
             </Left>
             <Right>
-              <Button title="Clear" onPress={() => props.clearCart()} />
+              <EasyButton danger medium onPress={() => props.clearCart()}>
+                <Text style={{ color: "white", alignSelf: "center" }}>
+                  Clear
+                </Text>
+              </EasyButton>
             </Right>
             <Right>
-              <Button
-                title="Checkout"
-                onPress={() => props.navigation.navigate("Checkout")}
-              />
+              {context.stateUser.isAuthenticated ? (
+                <EasyButton
+                  primary
+                  medium
+                  onPress={() => props.navigation.navigate("Checkout")}
+                >
+                  <Text style={{ color: "white", alignSelf: "center" }}>
+                    Checkout
+                  </Text>
+                </EasyButton>
+              ) : (
+                <EasyButton
+                  secondary
+                  medium
+                  onPress={() => props.navigation.navigate("User")}
+                >
+                  <Text style={{ color: "white", alignSelf: "center" }}>
+                    Login
+                  </Text>
+                </EasyButton>
+              )}
             </Right>
           </View>
         </Container>
